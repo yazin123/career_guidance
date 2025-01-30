@@ -1,0 +1,157 @@
+<!-- templates/core/company/applicants.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Manage Applications</h2>
+
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Job Position</label>
+                    <select name="job" class="form-control">
+                        <option value="">All Positions</option>
+                        {% for job in company_jobs %}
+                            <option value="{{ job.id }}" {% if request.GET.job|add:"0" == job.id %}selected{% endif %}>
+                                {{ job.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-control">
+                        <option value="">All Status</option>
+                        {% for status_code, status_label in status_choices %}
+                            <option value="{{ status_code }}" {% if request.GET.status == status_code %}selected{% endif %}>
+                                {{ status_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary d-block w-100">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    <div class="card" >
+        <div class="card-body">
+            {% if applications %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Position</th>
+                                <th>College</th>
+                                <th>CGPA</th>
+                                <th>Applied Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in applications %}
+                                <tr>
+                                    <td>{{ application.student.user.get_full_name }}</td>
+                                    <td>{{ application.job.title }}</td>
+                                    <td>{{ application.student.college.name }}</td>
+                                    <td>{{ application.student.cgpa }}</td>
+                                    <td>{{ application.applied_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge {% if application.status == 'SELECTED' %}bg-success
+                                                       {% elif application.status == 'REJECTED' %}bg-danger
+                                                       {% elif application.status == 'SHORTLISTED' %}bg-warning
+                                                       {% else %}bg-primary{% endif %}">
+                                            {{ application.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'application_detail' application.id %}" 
+                                               class="btn btn-sm btn-info">View</a>
+                                            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" 
+                                                    data-bs-toggle="dropdown">
+                                                Update Status
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <form action="{% url 'update_application_status' application.id %}" 
+                                                          method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="status" value="REVIEWING">
+                                                        <button type="submit" class="dropdown-item">Mark as Reviewing</button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form action="{% url 'update_application_status' application.id %}" 
+                                                          method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="status" value="SHORTLISTED">
+                                                        <button type="submit" class="dropdown-item">Shortlist</button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form action="{% url 'update_application_status' application.id %}" 
+                                                          method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="status" value="SELECTED">
+                                                        <button type="submit" class="dropdown-item">Select</button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form action="{% url 'update_application_status' application.id %}" 
+                                                          method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="status" value="REJECTED">
+                                                        <button type="submit" class="dropdown-item">Reject</button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if applications.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if applications.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ applications.previous_page_number }}{% if request.GET.job %}&job={{ request.GET.job }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for i in applications.paginator.page_range %}
+                                <li class="page-item {% if applications.number == i %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ i }}{% if request.GET.job %}&job={{ request.GET.job }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ i }}</a>
+                                </li>
+                            {% endfor %}
+
+                            {% if applications.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ applications.next_page_number }}{% if request.GET.job %}&job={{ request.GET.job }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No applications found matching your criteria.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

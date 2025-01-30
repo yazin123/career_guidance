@@ -1,0 +1,130 @@
+<!-- templates/core/applications/detail.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Application Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h4>Job Information</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Position:</strong> {{ application.job.title }}</p>
+                                <p><strong>Company:</strong> {{ application.job.company.name }}</p>
+                                <p><strong>Location:</strong> {{ application.job.location }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Applied Date:</strong> {{ application.applied_date|date:"M d, Y" }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="badge {% if application.status == 'SELECTED' %}bg-success
+                                                   {% elif application.status == 'REJECTED' %}bg-danger
+                                                   {% else %}bg-primary{% endif %}">
+                                        {{ application.get_status_display }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4>Cover Letter</h4>
+                        <div class="border rounded p-3 bg-light">
+                            {{ application.cover_letter|linebreaks }}
+                        </div>
+                    </div>
+
+                    {% if application.feedback and user.user_type != 'COMPANY' %}
+                        <div class="mb-4">
+                            <h4>Feedback</h4>
+                            <div class="border rounded p-3 bg-light">
+                                {{ application.feedback|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if user.user_type == 'COMPANY' %}
+                        <div class="mt-4">
+                            <h4>Provide Feedback</h4>
+                            <form method="post" action="{% url 'update_application_feedback' application.id %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <textarea name="feedback" class="form-control" rows="4">{{ application.feedback }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Feedback</button>
+                            </form>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4>Update Status</h4>
+                            <form method="post" action="{% url 'update_application_status' application.id %}" 
+                                  class="d-flex gap-2">
+                                {% csrf_token %}
+                                <select name="status" class="form-control">
+                                    {% for status in status_choices %}
+                                        <option value="{{ status.0 }}" 
+                                                {% if application.status == status.0 %}selected{% endif %}>
+                                            {{ status.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Applicant Information</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ application.student.user.get_full_name }}</p>
+                    <p><strong>Email:</strong> {{ application.student.user.email }}</p>
+                    <p><strong>College:</strong> {{ application.student.college.name }}</p>
+                    <p><strong>Branch:</strong> {{ application.student.branch }}</p>
+                    <p><strong>CGPA:</strong> {{ application.student.cgpa }}</p>
+                    <p><strong>Year of Passing:</strong> {{ application.student.year_of_passing }}</p>
+                    {% if application.student.resume %}
+                        <p><strong>Resume:</strong> 
+                            <a href="{{ application.student.resume.url }}" target="_blank">View Resume</a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>Actions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if user.user_type == 'COMPANY' %}
+                            <a href="{% url 'company_applicants' %}" class="btn btn-secondary">
+                                Back to Applications
+                            </a>
+                        {% elif user.user_type == 'STUDENT' %}
+                            <a href="{% url 'application_list' %}" class="btn btn-secondary">
+                                Back to My Applications
+                            </a>
+                        {% elif user.user_type == 'COLLEGE' %}
+                            <a href="{% url 'college_placements' %}" class="btn btn-secondary">
+                                Back to Placements
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

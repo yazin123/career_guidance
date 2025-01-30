@@ -1,0 +1,33 @@
+<!-- templates/core/jobs/delete.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Delete Job</h2>
+                </div>
+                <div class="card-body">
+                    <p>Are you sure you want to delete the following job?</p>
+                    
+                    <div class="alert alert-warning">
+                        <h5>{{ job.title }}</h5>
+                        <p><strong>Location:</strong> {{ job.location }}</p>
+                        <p><strong>Posted Date:</strong> {{ job.posted_date|date:"M d, Y" }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">Delete Job</button>
+                            <a href="{% url 'job_detail' job.id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

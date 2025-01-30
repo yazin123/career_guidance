@@ -1,0 +1,5 @@
+Django
+Pillow 
+python-decouple
+django-crispy-forms  
+crispy-bootstrap5

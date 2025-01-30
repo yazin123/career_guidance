@@ -1,0 +1,39 @@
+<!-- templates/core/register_choice.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h2 class="mb-4">Choose Registration Type</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Student</h3>
+                        <p class="card-text">Looking for job opportunities? Register as a student to apply for positions.</p>
+                        <a href="{% url 'register_student' %}" class="btn btn-primary">Register as Student</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Company</h3>
+                        <p class="card-text">Want to hire talented students? Register your company to post jobs.</p>
+                        <a href="{% url 'register_company' %}" class="btn btn-primary">Register as Company</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">College</h3>
+                        <p class="card-text">Want to manage placements? Register your college placement cell.</p>
+                        <a href="{% url 'register_college' %}" class="btn btn-primary">Register as College</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

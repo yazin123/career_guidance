@@ -1,0 +1,104 @@
+<!-- templates/core/college/add_placement.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Add Placement Record</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Student Details:</h5>
+                        <p><strong>Name:</strong> {{ student.user.get_full_name }}</p>
+                        <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+                        <p><strong>Branch:</strong> {{ student.branch }}</p>
+                        <p><strong>CGPA:</strong> {{ student.cgpa }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Company</label>
+                            {{ form.company }}
+                            {% if form.company.errors %}
+                                <div class="text-danger">{{ form.company.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Job (Optional)</label>
+                            {{ form.job }}
+                            {% if form.job.errors %}
+                                <div class="text-danger">{{ form.job.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted">Select if placement is through campus recruitment</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Designation</label>
+                            {{ form.designation }}
+                            {% if form.designation.errors %}
+                                <div class="text-danger">{{ form.designation.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Package (LPA)</label>
+                            {{ form.package }}
+                            {% if form.package.errors %}
+                                <div class="text-danger">{{ form.package.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="text-danger">{{ form.location.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Placement Date</label>
+                            {{ form.placement_date }}
+                            {% if form.placement_date.errors %}
+                                <div class="text-danger">{{ form.placement_date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Add Placement</button>
+                            <a href="{% url 'student_detail' student.id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Add dynamic job loading based on selected company
+document.getElementById('id_company').addEventListener('change', function() {
+    const companyId = this.value;
+    const jobSelect = document.getElementById('id_job');
+    jobSelect.innerHTML = '<option value="">---------</option>';
+    
+    if (companyId) {
+        fetch(`/api/company/${companyId}/jobs/`)
+            .then(response => response.json())
+            .then(jobs => {
+                jobs.forEach(job => {
+                    jobSelect.add(new Option(job.title, job.id));
+                });
+            });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

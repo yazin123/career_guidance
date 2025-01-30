@@ -1,0 +1,204 @@
+<!-- templates/core/jobs/detail.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>{{ job.title }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5 class="text-muted">{{ job.company.name }}</h5>
+                        <span class="badge {% if job.status == 'OPEN' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ job.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Location:</strong> {{ job.location }}</p>
+                            <p><strong>Job Type:</strong> {{ job.job_type }}</p>
+                            <p><strong>Salary Range:</strong> {{ job.salary_range }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Posted Date:</strong> {{ job.posted_date|date:"M d, Y" }}</p>
+                            <p><strong>Application Deadline:</strong> {{ job.deadline|date:"M d, Y" }}</p>
+                            <p><strong>Minimum CGPA:</strong> {{ job.min_cgpa }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Job Description</h5>
+                        <p>{{ job.description|linebreaks }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Requirements</h5>
+                        <p>{{ job.requirements|linebreaks }}</p>
+                    </div>
+
+                    {% if job.eligible_branches %}
+                    <div class="mb-4">
+                        <h5>Eligible Branches</h5>
+                        <p>{{ job.eligible_branches }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if user.user_type == 'STUDENT' and can_apply %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">Apply Now</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if user.user_type == 'COMPANY' and user == job.company.user %}
+            <!-- Application Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Application Statistics</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h3>{{ total_applications }}</h3>
+                            <p>Total Applications</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>{{ shortlisted_count }}</h3>
+                            <p>Shortlisted</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>{{ selected_count }}</h3>
+                            <p>Selected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications List -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Applications</h4>
+                </div>
+                <div class="card-body">
+                    {% if applications %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>College</th>
+                                    <th>CGPA</th>
+                                    <th>Applied Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                <tr>
+                                    <td>{{ application.student.user.get_full_name }}</td>
+                                    <td>{{ application.student.college.name }}</td>
+                                    <td>{{ application.student.cgpa }}</td>
+                                    <td>{{ application.applied_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge {% if application.status == 'SELECTED' %}bg-success
+                                                                   {% elif application.status == 'REJECTED' %}bg-danger
+                                                                   {% else %}bg-primary{% endif %}">
+                                            {{ application.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'application_detail' application.id %}"
+                                            class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No applications received yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <!-- Company Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Company Information</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Industry:</strong> {{ job.company.industry }}</p>
+                    <p><strong>Location:</strong> {{ job.company.location }}</p>
+                    {% if job.company.website %}
+                    <p><strong>Website:</strong>
+                        <a href="{{ job.company.website }}" target="_blank">Visit Website</a>
+                    </p>
+                    {% endif %}
+                    <p>{{ job.company.description|truncatewords:50 }}</p>
+                </div>
+            </div>
+            <!-- In templates/core/jobs/detail.html -->
+            {% if user.user_type == 'STUDENT' and job.status == 'OPEN' %}
+            {% if can_apply %}
+            <div class="d-grid gap-2 mt-4">
+                <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">Apply Now</a>
+            </div>
+            {% else %}
+            {% if student.cgpa < job.min_cgpa %} <div class="alert alert-warning mt-4">
+                Your CGPA ({{ student.cgpa }}) does not meet the minimum requirement ({{ job.min_cgpa }}).
+        </div>
+        {% endif %}
+        {% endif %}
+        {% endif %}
+
+        <!-- Actions -->
+        {% if user.user_type == 'COMPANY' and user == job.company.user %}
+        <div class="card">
+            <div class="card-header">
+                <h4>Actions</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'edit_job' job.id %}" class="btn btn-warning">Edit Job</a>
+                    <a href="{% url 'delete_job' job.id %}" class="btn btn-danger">Delete Job</a>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Job Status</h4>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'update_job_status' job.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Status:</label>
+                        <select name="status" class="form-control">
+                            {% for status_code, status_label in job.STATUS_CHOICES %}
+                                <option value="{{ status_code }}" {% if job.status == status_code %}selected{% endif %}>
+                                    {{ status_label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endblock %}

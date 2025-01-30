@@ -1,0 +1,175 @@
+<!-- templates/core/reports/company_report.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ company.name }} - Company Report</h2>
+        <button class="btn btn-primary" onclick="window.print()">Print Report</button>
+    </div>
+
+    <!-- Company Overview -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Company Overview</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Industry:</strong> {{ company.industry }}</p>
+                    <p><strong>Location:</strong> {{ company.location }}</p>
+                    <p><strong>Website:</strong> <a href="{{ company.website }}" target="_blank">{{ company.website }}</a></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Total Jobs Posted:</strong> {{ total_jobs }}</p>
+                    <p><strong>Active Jobs:</strong> {{ active_jobs }}</p>
+                    <p><strong>Total Placements:</strong> {{ total_placements }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ total_applications }}</h3>
+                    <p class="mb-0">Total Applications</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ selected_candidates }}</h3>
+                    <p class="mb-0">Selected Candidates</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ total_placements }}</h3>
+                    <p class="mb-0">Total Placements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Jobs -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Active Job Postings</h3>
+        </div>
+        <div class="card-body">
+            {% if jobs %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Location</th>
+                                <th>Applications</th>
+                                <th>Posted Date</th>
+                                <th>Deadline</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in jobs %}
+                                {% if job.status == 'OPEN' %}
+                                    <tr>
+                                        <td>{{ job.title }}</td>
+                                        <td>{{ job.location }}</td>
+                                        <td>{{ job.application_set.count }}</td>
+                                        <td>{{ job.posted_date|date:"M d, Y" }}</td>
+                                        <td>{{ job.deadline|date:"M d, Y" }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No active jobs found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Recent Applications</h3>
+        </div>
+        <div class="card-body">
+            {% if recent_applications %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Position</th>
+                                <th>Applied Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in recent_applications %}
+                                <tr>
+                                    <td>{{ application.student.user.get_full_name }}</td>
+                                    <td>{{ application.job.title }}</td>
+                                    <td>{{ application.applied_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge {% if application.status == 'SELECTED' %}bg-success
+                                                       {% elif application.status == 'REJECTED' %}bg-danger
+                                                       {% else %}bg-primary{% endif %}">
+                                            {{ application.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No recent applications found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Placements -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Recent Placements</h3>
+        </div>
+        <div class="card-body">
+            {% if recent_placements %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Position</th>
+                                <th>Package</th>
+                                <th>Placement Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for placement in recent_placements %}
+                                <tr>
+                                    <td>{{ placement.student.user.get_full_name }}</td>
+                                    <td>{{ placement.designation }}</td>
+                                    <td>₹{{ placement.package }} LPA</td>
+                                    <td>{{ placement.placement_date|date:"M d, Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No placements recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

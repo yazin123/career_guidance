@@ -1,0 +1,144 @@
+<!-- templates/core/college/student_detail.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Student Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ student.user.get_full_name }}</p>
+                            <p><strong>Email:</strong> {{ student.user.email }}</p>
+                            <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+                            <p><strong>Branch:</strong> {{ student.branch }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>CGPA:</strong> {{ student.cgpa }}</p>
+                            <p><strong>Year of Passing:</strong> {{ student.year_of_passing }}</p>
+                            {% if student.resume %}
+                                <p><strong>Resume:</strong> <a href="{{ student.resume.url }}" target="_blank">View Resume</a></p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Application Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ total_applications }}</h3>
+                                    <p class="mb-0">Total Applications</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-warning">
+                                <div class="card-body text-center">
+                                    <h3>{{ shortlisted_applications }}</h3>
+                                    <p class="mb-0">Shortlisted</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ selected_applications }}</h3>
+                                    <p class="mb-0">Selected</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Applications -->
+                    <h4>Applications</h4>
+                    {% if applications %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Position</th>
+                                        <th>Applied Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in applications %}
+                                        <tr>
+                                            <td>{{ application.job.company.name }}</td>
+                                            <td>{{ application.job.title }}</td>
+                                            <td>{{ application.applied_date|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="badge {% if application.status == 'SELECTED' %}bg-success
+                                                               {% elif application.status == 'REJECTED' %}bg-danger
+                                                               {% else %}bg-primary{% endif %}">
+                                                    {{ application.get_status_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No applications submitted yet.</p>
+                    {% endif %}
+
+                    <!-- Placements -->
+                    <h4 class="mt-4">Placements</h4>
+                    {% if placements %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Position</th>
+                                        <th>Package</th>
+                                        <th>Location</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for placement in placements %}
+                                        <tr>
+                                            <td>{{ placement.company.name }}</td>
+                                            <td>{{ placement.designation }}</td>
+                                            <td>₹{{ placement.package }} LPA</td>
+                                            <td>{{ placement.location }}</td>
+                                            <td>{{ placement.placement_date|date:"M d, Y" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No placements recorded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Actions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit_student' student.id %}" class="btn btn-primary">Edit Details</a>
+                        {% if not student.placement_set.exists %}
+                            <a href="{% url 'add_placement' student.id %}" class="btn btn-success">Add Placement</a>
+                        {% endif %}
+                        <a href="{% url 'student_list' %}" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

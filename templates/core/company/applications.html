@@ -1,0 +1,150 @@
+<!-- templates/core/company/applications.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Manage Applications</h2>
+
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <select name="job" class="form-control">
+                        <option value="">All Jobs</option>
+                        {% for job in company_jobs %}
+                            <option value="{{ job.id }}" 
+                                    {% if request.GET.job|add:0 == job.id %}selected{% endif %}>
+                                {{ job.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        {% for status in status_choices %}
+                            <option value="{{ status.0 }}" 
+                                    {% if request.GET.status == status.0 %}selected{% endif %}>
+                                {{ status.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if applications %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>College</th>
+                        <th>CGPA</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                        <tr>
+                            <td>{{ application.student.user.get_full_name }}</td>
+                            <td>{{ application.job.title }}</td>
+                            <td>{{ application.student.college.name }}</td>
+                            <td>{{ application.student.cgpa }}</td>
+                            <td>{{ application.applied_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge {% if application.status == 'SELECTED' %}bg-success
+                                               {% elif application.status == 'REJECTED' %}bg-danger
+                                               {% else %}bg-primary{% endif %}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'application_detail' application.id %}" 
+                                       class="btn btn-sm btn-info">View</a>
+                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" 
+                                            data-bs-toggle="dropdown">
+                                        Update Status
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <form action="{% url 'update_application_status' application.id %}" 
+                                                  method="post" class="dropdown-item">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status" value="REVIEWING">
+                                                <button type="submit" class="btn btn-link">Mark as Reviewing</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form action="{% url 'update_application_status' application.id %}" 
+                                                  method="post" class="dropdown-item">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status" value="SHORTLISTED">
+                                                <button type="submit" class="btn btn-link">Shortlist</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form action="{% url 'update_application_status' application.id %}" 
+                                                  method="post" class="dropdown-item">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status" value="SELECTED">
+                                                <button type="submit" class="btn btn-link">Select</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form action="{% url 'update_application_status' application.id %}" 
+                                                  method="post" class="dropdown-item">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status" value="REJECTED">
+                                                <button type="submit" class="btn btn-link">Reject</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if applications.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if applications.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ applications.previous_page_number }}">&laquo;</a>
+                        </li>
+                    {% endif %}
+
+                    {% for i in applications.paginator.page_range %}
+                        <li class="page-item {% if applications.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                    {% endfor %}
+
+                    {% if applications.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ applications.next_page_number }}">&raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            No applications found.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

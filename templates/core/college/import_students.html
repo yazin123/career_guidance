@@ -1,0 +1,33 @@
+<!-- templates/core/college/import_students.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Import Students</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Upload CSV File</label>
+                            <input type="file" name="file" class="form-control" accept=".csv">
+                            <small class="text-muted">
+                                File should contain: Roll Number, Name, Email, Branch, Year of Passing, CGPA
+                            </small>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Import Students</button>
+                            <a href="{% url 'student_list' %}" class="btn btn-secondary">Cancel</a>
+                            <a href="#" class="btn btn-link">Download Sample CSV</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

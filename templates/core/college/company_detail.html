@@ -1,0 +1,159 @@
+<!-- templates/core/college/company_detail.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>{{ company.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Industry:</strong> {{ company.industry }}</p>
+                            <p><strong>Location:</strong> {{ company.location }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Email:</strong> {{ company.user.email }}</p>
+                            <p><strong>Phone:</strong> {{ company.user.phone }}</p>
+                            {% if company.website %}
+                                <p><strong>Website:</strong> 
+                                    <a href="{{ company.website }}" target="_blank">{{ company.website }}</a>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4>Company Description</h4>
+                        <p>{{ company.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Jobs -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Active Job Postings</h4>
+                </div>
+                <div class="card-body">
+                    {% if active_jobs %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Position</th>
+                                        <th>Applications</th>
+                                        <th>Deadline</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in active_jobs %}
+                                        <tr>
+                                            <td>{{ job.title }}</td>
+                                            <td>{{ job.application_set.count }}</td>
+                                            <td>{{ job.deadline|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'job_detail' job.id %}" 
+                                                   class="btn btn-sm btn-primary">View</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No active job postings.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Placement History -->
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Placement History</h4>
+                </div>
+                <div class="card-body">
+                    {% if placements %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Position</th>
+                                        <th>Package (LPA)</th>
+                                        <th>Placement Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for placement in placements %}
+                                        <tr>
+                                            <td>{{ placement.student.user.get_full_name }}</td>
+                                            <td>{{ placement.designation }}</td>
+                                            <td>{{ placement.package }}</td>
+                                            <td>{{ placement.placement_date|date:"M d, Y" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No placement history available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Statistics Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Statistics</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>Total Placements:</strong> {{ total_placements }}
+                        </li>
+                        <li class="mb-2">
+                            <strong>Average Package:</strong> ₹{{ avg_package|floatformat:2 }} LPA
+                        </li>
+                        <li class="mb-2">
+                            <strong>Highest Package:</strong> ₹{{ highest_package|floatformat:2 }} LPA
+                        </li>
+                        <li class="mb-2">
+                            <strong>Active Jobs:</strong> {{ active_jobs.count }}
+                        </li>
+                        <li>
+                            <strong>Total Applications:</strong> {{ total_applications }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Actions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit_company' company.id %}" class="btn btn-primary">
+                            Edit Company Details
+                        </a>
+                        <a href="{% url 'download_company_report' company.id %}" class="btn btn-success">
+                            Download Report
+                        </a>
+                        <a href="{% url 'company_list' %}" class="btn btn-secondary">
+                            Back to Companies
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

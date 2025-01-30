@@ -1,0 +1,123 @@
+<!-- templates/core/college/companies.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Partner Companies</h2>
+        <a href="{% url 'invite_company' %}" class="btn btn-primary">Invite Company</a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ total_companies }}</h3>
+                    <p class="mb-0">Total Companies</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ active_jobs }}</h3>
+                    <p class="mb-0">Active Job Postings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ students_placed }}</h3>
+                    <p class="mb-0">Students Placed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company List -->
+    <div class="row">
+        {% for company in companies %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h4 class="card-title">{{ company.name }}</h4>
+                                <h6 class="text-muted">{{ company.industry }}</h6>
+                            </div>
+                            <span class="badge bg-success">{{ company.placement_set.count }} Placements</span>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p><strong>Location:</strong> {{ company.location }}</p>
+                            <p><strong>Active Jobs:</strong> {{ company.job_set.filter.status='OPEN'.count }}</p>
+                            <p><strong>Average Package:</strong> 
+                                {% if company.placement_set.exists %}
+                                    ₹{{ company.avg_package|floatformat:2 }} LPA
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <div class="mt-3">
+                            <h6>Recent Placements</h6>
+                            {% if company.placement_set.exists %}
+                                <ul class="list-unstyled">
+                                    {% for placement in company.placement_set.all|slice:":3" %}
+                                        <li>{{ placement.student.user.get_full_name }} - {{ placement.designation }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">No placements yet</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="{% url 'company_detail' company.id %}" class="btn btn-primary btn-sm">View Details</a>
+                            {% if company.website %}
+                                <a href="{{ company.website }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    Visit Website
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No companies registered yet. Start by inviting companies to your placement portal.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if companies.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if companies.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ companies.previous_page_number }}">&laquo;</a>
+                    </li>
+                {% endif %}
+
+                {% for i in companies.paginator.page_range %}
+                    <li class="page-item {% if companies.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if companies.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ companies.next_page_number }}">&raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

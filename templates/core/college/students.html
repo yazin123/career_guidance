@@ -1,0 +1,141 @@
+<!-- templates/core/college/students.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Student Management</h2>
+        <div>
+            <a href="{% url 'import_students' %}" class="btn btn-success">Import Students</a>
+            <a href="{% url 'add_student' %}" class="btn btn-primary">Add Student</a>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <select name="branch" class="form-control">
+                        <option value="">All Branches</option>
+                        {% for branch in branches %}
+                            <option value="{{ branch }}" 
+                                    {% if request.GET.branch == branch %}selected{% endif %}>
+                                {{ branch }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="year" class="form-control">
+                        <option value="">All Years</option>
+                        {% for year in years %}
+                            <option value="{{ year }}" 
+                                    {% if request.GET.year|add:0 == year %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="placement_status" class="form-control">
+                        <option value="">All Status</option>
+                        <option value="placed" {% if request.GET.placement_status == 'placed' %}selected{% endif %}>
+                            Placed
+                        </option>
+                        <option value="not_placed" 
+                                {% if request.GET.placement_status == 'not_placed' %}selected{% endif %}>
+                            Not Placed
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Student List -->
+    {% if students %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Roll Number</th>
+                                <th>Branch</th>
+                                <th>Year of Passing</th>
+                                <th>CGPA</th>
+                                <th>Placement Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                                <tr>
+                                    <td>{{ student.user.get_full_name }}</td>
+                                    <td>{{ student.roll_number }}</td>
+                                    <td>{{ student.branch }}</td>
+                                    <td>{{ student.year_of_passing }}</td>
+                                    <td>{{ student.cgpa }}</td>
+                                    <td>
+                                        {% if student.placement_set.exists %}
+                                            <span class="badge bg-success">Placed</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Placed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'student_detail' student.id %}" 
+                                               class="btn btn-sm btn-info">View</a>
+                                            <a href="{% url 'edit_student' student.id %}" 
+                                               class="btn btn-sm btn-warning">Edit</a>
+                                            {% if not student.placement_set.exists %}
+                                                <a href="{% url 'add_placement' student.id %}" 
+                                                   class="btn btn-sm btn-success">Add Placement</a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if students.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if students.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ students.previous_page_number }}">&laquo;</a>
+                        </li>
+                    {% endif %}
+
+                    {% for i in students.paginator.page_range %}
+                        <li class="page-item {% if students.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                    {% endfor %}
+
+                    {% if students.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ students.next_page_number }}">&raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            No students found matching the criteria.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

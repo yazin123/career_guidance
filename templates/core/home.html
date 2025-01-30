@@ -1,0 +1,69 @@
+<!-- templates/core/home.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col-md-6">
+        <h1 class="display-4 mb-4">Welcome to Career Guidance</h1>
+        <p class="lead">Connecting students with their dream companies through college placement cells.</p>
+        {% if not user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{% url 'register' %}" class="btn btn-primary me-2">Get Started</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary">Login</a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 text-center">
+        <!-- Add an illustration or image here -->
+        <img src="https://via.placeholder.com/500x300" alt="Career Guidance" class="img-fluid">
+    </div>
+</div>
+
+{% if jobs %}
+<div class="card mt-5">
+    <div class="card-header">
+        <h3>Recent Job Openings</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for job in jobs %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ job.title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ job.company.name }}</h6>
+                        <p class="card-text">{{ job.description|truncatewords:30 }}</p>
+                        <p class="mb-0"><strong>Location:</strong> {{ job.location }}</p>
+                        <p><strong>Deadline:</strong> {{ job.deadline|date:"M d, Y" }}</p>
+                        <a href="{% url 'job_detail' job.id %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>Companies</h3>
+                <p>Post job openings and find talented students for your organization.</p>
+                <a href="{% url 'register_company' %}" class="btn btn-outline-primary">Register as Company</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>Colleges</h3>
+                <p>Manage your placement cell and help students find great opportunities.</p>
+                <a href="{% url 'register_college' %}" class="btn btn-outline-primary">Register as College</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
