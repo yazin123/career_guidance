@@ -12,12 +12,20 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        
+                        {% if user.user_type == 'COLLEGE' %}
+                        <div class="mb-3">
+                            <label class="form-label">Company name</label>
+                            {{ form.company }}
+                            {% if form.company.errors %}
+                            <div class="text-danger">{{ form.company.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                         <div class="mb-3">
                             <label class="form-label">Job Title</label>
                             {{ form.title }}
                             {% if form.title.errors %}
-                                <div class="text-danger">{{ form.title.errors }}</div>
+                            <div class="text-danger">{{ form.title.errors }}</div>
                             {% endif %}
                         </div>
 
@@ -27,7 +35,7 @@
                                     <label class="form-label">Job Type</label>
                                     {{ form.job_type }}
                                     {% if form.job_type.errors %}
-                                        <div class="text-danger">{{ form.job_type.errors }}</div>
+                                    <div class="text-danger">{{ form.job_type.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -36,7 +44,7 @@
                                     <label class="form-label">Location</label>
                                     {{ form.location }}
                                     {% if form.location.errors %}
-                                        <div class="text-danger">{{ form.location.errors }}</div>
+                                    <div class="text-danger">{{ form.location.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -48,7 +56,7 @@
                                     <label class="form-label">Salary Range</label>
                                     {{ form.salary_range }}
                                     {% if form.salary_range.errors %}
-                                        <div class="text-danger">{{ form.salary_range.errors }}</div>
+                                    <div class="text-danger">{{ form.salary_range.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -57,7 +65,7 @@
                                     <label class="form-label">Application Deadline</label>
                                     {{ form.deadline }}
                                     {% if form.deadline.errors %}
-                                        <div class="text-danger">{{ form.deadline.errors }}</div>
+                                    <div class="text-danger">{{ form.deadline.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -69,7 +77,7 @@
                                     <label class="form-label">Minimum CGPA</label>
                                     {{ form.min_cgpa }}
                                     {% if form.min_cgpa.errors %}
-                                        <div class="text-danger">{{ form.min_cgpa.errors }}</div>
+                                    <div class="text-danger">{{ form.min_cgpa.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -78,7 +86,7 @@
                                     <label class="form-label">Eligible Branches</label>
                                     {{ form.eligible_branches }}
                                     {% if form.eligible_branches.errors %}
-                                        <div class="text-danger">{{ form.eligible_branches.errors }}</div>
+                                    <div class="text-danger">{{ form.eligible_branches.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -88,7 +96,7 @@
                             <label class="form-label">Job Description</label>
                             {{ form.description }}
                             {% if form.description.errors %}
-                                <div class="text-danger">{{ form.description.errors }}</div>
+                            <div class="text-danger">{{ form.description.errors }}</div>
                             {% endif %}
                         </div>
 
@@ -96,7 +104,7 @@
                             <label class="form-label">Requirements</label>
                             {{ form.requirements }}
                             {% if form.requirements.errors %}
-                                <div class="text-danger">{{ form.requirements.errors }}</div>
+                            <div class="text-danger">{{ form.requirements.errors }}</div>
                             {% endif %}
                         </div>
 

@@ -198,15 +198,16 @@ def job_detail(request, job_id):
     return render(request, 'core/jobs/detail.html', context)
 @login_required
 def create_job(request):
-    if request.user.user_type != 'COMPANY':
-        messages.error(request, 'Only companies can post jobs.')
+    if request.user.user_type == 'STUDENT'  :
+        messages.error(request, 'Only companies or college can post jobs.')
         return redirect('job_list')
     
     if request.method == 'POST':
         form = JobForm(request.POST)
         if form.is_valid():
             job = form.save(commit=False)
-            job.company = request.user.company
+            if request.user.user_type == 'COMPANY':
+                job.company = request.user.company
             job.save()
             messages.success(request, 'Job posted successfully!')
             return redirect('job_detail', job_id=job.id)

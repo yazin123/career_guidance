@@ -56,8 +56,9 @@ class CollegeForm(forms.ModelForm):
 class JobForm(forms.ModelForm):
     class Meta:
         model = Job
-        exclude = ('company', 'status', 'posted_date')
+        exclude = ( 'status', 'posted_date')
         widgets = {
+             'company': forms.Select(attrs={'class': 'form-control', 'required': 'required'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'requirements': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
