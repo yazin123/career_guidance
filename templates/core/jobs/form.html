@@ -21,6 +21,17 @@
                             {% endif %}
                         </div>
                         {% endif %}
+
+                        {% if user.user_type == 'COMPANY' %}
+                        <div class="mb-3">
+                            <label class="form-label">Company name</label>
+                            <select class="form-control" disabled>
+                                <option selected>{{ user.company.name }}</option>
+                            </select>
+                            <!-- Hidden field to submit the company ID -->
+                            <input type="hidden" name="{{ form.company.name }}" value="{{ user.company.id }}">
+                        </div>
+                        {% endif %}
                         <div class="mb-3">
                             <label class="form-label">Job Title</label>
                             {{ form.title }}

@@ -206,11 +206,14 @@ def create_job(request):
         form = JobForm(request.POST)
         if form.is_valid():
             job = form.save(commit=False)
+            print("=========yes===========")
             if request.user.user_type == 'COMPANY':
                 job.company = request.user.company
             job.save()
             messages.success(request, 'Job posted successfully!')
             return redirect('job_detail', job_id=job.id)
+        else:
+            print(f"{form.errors}")
     else:
         form = JobForm()
     
